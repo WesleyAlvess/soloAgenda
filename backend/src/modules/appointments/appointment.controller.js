@@ -19,14 +19,15 @@ export const createAppointmentController = async (req, res) => {
   }
 };
 
-// Mostrar agendamento do profissional especifico
+// Filtro por data, status e listagem total de agendamentos
 export const getAppointmentsController = async (req, res) => {
   try {
-    const { date } = req.query;
+    const { date, status } = req.query;
 
     const appointments = await getAppointmentsService({
       professionalId: req.userId,
       date,
+      status,
     });
 
     return res.status(200).json(appointments);

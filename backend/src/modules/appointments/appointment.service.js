@@ -52,8 +52,12 @@ export const createAppointmentService = async ({
 };
 
 
-// Mostrar agendamentos do proficional especifico
-export const getAppointmentsService = async ({ professionalId, date }) => {
+// Filtro por data, status e listagem total de agendamentos
+// GET /appointments, 
+// GET /appointments?date=2026-03-30,GET 
+// /appointments?status=confirmed
+// GET /appointments?date=2026-03-30&status=confirmed
+export const getAppointmentsService = async ({ professionalId, date, status }) => {
   const filter = { professionalId };
 
   if (date) {
@@ -64,6 +68,10 @@ export const getAppointmentsService = async ({ professionalId, date }) => {
       $gte: startOfDay,
       $lte: endOfDay,
     };
+  }
+
+  if (status) {
+    filter.status = status;
   }
 
   const appointments = await Appointment.find(filter).sort({ date: 1 });
