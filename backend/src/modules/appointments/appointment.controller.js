@@ -1,4 +1,4 @@
-import { createAppointmentService, getAppointmentsService, updateAppointmentStatusService } from "./appointment.service.js";
+import { createAppointmentService, getAppointmentsService, updateAppointmentStatusService, getDailyAgendaService } from "./appointment.service.js";
 
 // Criar um agendamento 
 export const createAppointmentController = async (req, res) => {
@@ -50,6 +50,23 @@ export const updateAppointmentStatusController = async (req, res) => {
     });
 
     return res.status(200).json(updatedAppointment);
+  } catch (error) {
+    return res.status(400).json({ message: error.message });
+  }
+};
+
+
+// Agendamentos do dia 
+export const getDailyAgendaController = async (req, res) => {
+  try {
+    const { date } = req.query;
+
+    const dailyAgenda = await getDailyAgendaService({
+      professionalId: req.userId,
+      date,
+    });
+
+    return res.status(200).json(dailyAgenda);
   } catch (error) {
     return res.status(400).json({ message: error.message });
   }

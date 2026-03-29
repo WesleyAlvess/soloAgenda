@@ -112,3 +112,29 @@ export const updateAppointmentStatusService = async ({
   return appointment;
 
 };
+
+
+// Agendamentos do dia
+export const getDailyAgendaService = async ({ professionalId, date }) => {
+  if (!date) {
+    throw new Error("A data é obrigatória.");
+  }
+
+  const startOfDay = new Date(`${date}T00:00:00.000Z`);
+  const endOfDay = new Date(`${date}T23:59:59.999Z`);
+
+  const appointments = await Appointment.find({
+    professionalId,
+    date: {
+      $gte: startOfDay,
+      $lte: endOfDay,
+    },
+  }).sort({ date: 1 });
+
+  return {
+    confirmed: appointments.filter((appointment) => appointment.status === "confirmed"),
+    completed: appointments.filter((appointment) => appointment.status === "completed"),
+    cancelled: appointments.filter((appointment) => appointment.status === "cancelled"),
+    "no-show": appointments.filter((appointment) => appointment.status === "no-show"),
+  };
+};
