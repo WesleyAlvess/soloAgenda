@@ -28,6 +28,10 @@ const professionalSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    workingHours: {
+      start: { type: String, default: "08:00" },
+      end: { type: String, default: "18:00" }
+    },
   },
   {
     timestamps: true,
