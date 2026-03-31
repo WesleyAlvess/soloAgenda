@@ -2,6 +2,32 @@ import bcrypt from "bcryptjs"
 import Professional from "../professionals/professional.model.js"
 import { generateToken } from "../../utils/generateToken.js"
 
+// Gerar Slug
+function generateBaseSlug(text) {
+  return text
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9\s-]/g, "")
+    .replace(/\s+/g, "-")
+    .replace(/-+/g, "-");
+}
+
+// Deixar Slug Unico
+async function generateUniqueSlug(businessName) {
+  const baseSlug = generateBaseSlug(businessName)
+
+  let slug = baseSlug
+  let counter = 1
+
+  while (await Professional.findOne({ slug })) {
+    slug = `${baseSlug}-${counter}`
+    counter++
+  }
+  return slug
+}
+
 // Registro do Profissional
 export async function registerProfessionalService(data) {
   const { name, businessName, email, phone, password } = data
@@ -18,12 +44,17 @@ export async function registerProfessionalService(data) {
 
   const hashedPassword = await bcrypt.hash(password, 10)
 
+  // Invocar função passando parametro, e receber slug unico
+  const slug = await generateUniqueSlug(businessName)
+
   const professional = await Professional.create({
     name,
     businessName,
     email,
     phone,
     password: hashedPassword,
+    slug,
+    isPublic: false,
   })
 
   return {
@@ -32,10 +63,13 @@ export async function registerProfessionalService(data) {
     businessName: professional.businessName,
     email: professional.email,
     phone: professional.phone,
+    slug: professional.slug,
+    isPublic: professional.isPublic,
     createdAt: professional.createdAt,
     updatedAt: professional.updatedAt,
   }
 }
+
 
 // Login do Profissional
 export async function loginProfessionalService(data) {
